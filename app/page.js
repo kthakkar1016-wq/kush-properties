@@ -82,7 +82,6 @@ export default function Home() {
 
   const specialties = ["All", ...SPECIALTIES];
   const propertiesWithLeases = leases.filter(l => l.startDate && l.endDate).map(l => l.property);
-  
   const years = [...new Set(expenses.map(e => e.date.substring(0, 4)))].sort().reverse();
 
   const filtered = contacts.filter(c => {
@@ -190,7 +189,7 @@ export default function Home() {
     const encoded = encodeURIComponent(msg);
     window.location.href = `sms:${activeContact.phone}?body=${encoded}`;
     setModal(null);
-    showToast(`Opening Messages…`);
+    showToast("Opening Messages…");
   }
 
   function callContact(contact) {
@@ -199,7 +198,7 @@ export default function Home() {
 
   return (
     <div style={{ minHeight: "100vh", background: "#0f0f13", fontFamily: "'DM Mono', 'Courier New', monospace", color: "#e8e4dc" }}>
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@700;800&display=swap'); * { box-sizing: border-box; margin: 0; padding: 0; } .card { background: #16161d; border: 1px solid #2a2a35; border-radius: 12px; } .card:hover { border-color: #3a3a50; } .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.72); display: flex; align-items: center; justify-content: center; padding: 20px; z-index: 100; } .modal { background: #16161d; border: 1px solid #2f2f3f; border-radius: 16px; width: 100%; max-width: 420px; padding: 28px; } .quick-msg { padding: 10px 14px; border-radius: 8px; border: 1px solid #2f2f3f; cursor: pointer; font-size: 12px; line-height: 1.5; white-space: pre-wrap; word-break: break-word; } .quick-msg:hover { border-color: #c41e3a; background: #1e1e2f; } .quick-msg.selected { border-color: #c41e3a; background: #1e1e3a; } .toast { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%); background: #2a2a3a; border: 1px solid #3a3a50; border-radius: 10px; padding: 11px 22px; font-size: 13px; z-index: 999; } .pill-filter { padding: 6px 14px; border-radius: 20px; font-size: 11px; font-weight: 500; cursor: pointer; border: 1px solid #2a2a35; background: transparent; color: #888; font-family: inherit; } .pill-filter.active { background: #c41e3a; border-color: #c41e3a; color: #fff; }`}</style>
+      <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@700;800&display=swap'); * { box-sizing: border-box; margin: 0; padding: 0; }`}</style>
       
       <div style={{ padding: "28px 24px 0", maxWidth: 680, margin: "0 auto" }}>
         <div style={{ fontFamily: "'Syne', sans-serif", fontSize: 26, fontWeight: 800, color: "#fff", marginBottom: 24 }}>
@@ -215,23 +214,20 @@ export default function Home() {
       </div>
 
       {tab === "contacts" && (
-        <>
-          <div style={{ padding: "0 24px", maxWidth: 680, margin: "0 auto", marginBottom: 24 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-              <div style={{ fontSize: 11, color: "#666" }}>PROPERTY</div>
-              <button onClick={openAdd} style={{ background: "#c41e3a", color: "#fff", padding: "8px 14px", fontSize: 11, border: "none", borderRadius: "6px", cursor: "pointer", fontFamily: "inherit" }}>+ ADD</button>
-            </div>
-            <select value={selectedProperty} onChange={e => setSelectedProperty(e.target.value)} style={{ marginBottom: 16, background: "#1e1e28", border: "1px solid #2f2f3f", borderRadius: "8px", color: "#e8e4dc", padding: "10px 14px", width: "100%", fontFamily: "inherit", fontSize: "13px" }}>
-              <option>All Properties</option>
-              {PROPERTIES.map(p => <option key={p}>{p}</option>)}
-            </select>
-            <input placeholder="Search..." value={search} onChange={e => setSearch(e.target.value)} style={{ marginBottom: 14, background: "#1e1e28", border: "1px solid #2f2f3f", borderRadius: "8px", color: "#e8e4dc", padding: "10px 14px", width: "100%", fontFamily: "inherit", fontSize: "13px" }} />
-            <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 24 }}>
-              {specialties.map(s => <button key={s} onClick={() => setFilter(s)} style={{ padding: "6px 14px", borderRadius: "20px", fontSize: "11px", cursor: "pointer", border: filter === s ? "1px solid #c41e3a" : "1px solid #2a2a35", background: filter === s ? "#c41e3a" : "transparent", color: filter === s ? "#fff" : "#888", fontFamily: "inherit" }}>{s}</button>)}
-            </div>
+        <div style={{ padding: "0 24px", maxWidth: 680, margin: "0 auto", marginBottom: 24 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+            <div style={{ fontSize: 11, color: "#666" }}>PROPERTY</div>
+            <button onClick={openAdd} style={{ background: "#c41e3a", color: "#fff", padding: "8px 14px", fontSize: 11, border: "none", borderRadius: "6px", cursor: "pointer", fontFamily: "inherit" }}>+ ADD</button>
           </div>
-
-          <div style={{ maxWidth: 680, margin: "0 auto", padding: "0 24px 40px", display: "flex", flexDirection: "column", gap: 10 }}>
+          <select value={selectedProperty} onChange={e => setSelectedProperty(e.target.value)} style={{ marginBottom: 16, background: "#1e1e28", border: "1px solid #2f2f3f", borderRadius: "8px", color: "#e8e4dc", padding: "10px 14px", width: "100%", fontFamily: "inherit", fontSize: "13px" }}>
+            <option>All Properties</option>
+            {PROPERTIES.map(p => <option key={p}>{p}</option>)}
+          </select>
+          <input placeholder="Search..." value={search} onChange={e => setSearch(e.target.value)} style={{ marginBottom: 14, background: "#1e1e28", border: "1px solid #2f2f3f", borderRadius: "8px", color: "#e8e4dc", padding: "10px 14px", width: "100%", fontFamily: "inherit", fontSize: "13px" }} />
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 24 }}>
+            {specialties.map(s => <button key={s} onClick={() => setFilter(s)} style={{ padding: "6px 14px", borderRadius: "20px", fontSize: "11px", cursor: "pointer", border: filter === s ? "1px solid #c41e3a" : "1px solid #2a2a35", background: filter === s ? "#c41e3a" : "transparent", color: filter === s ? "#fff" : "#888", fontFamily: "inherit" }}>{s}</button>)}
+          </div>
+          <div style={{ maxWidth: 680, margin: "0 auto", padding: "0 0 40px", display: "flex", flexDirection: "column", gap: 10 }}>
             {filtered.map(c => (
               <div key={c.id} style={{ background: "#16161d", border: "1px solid #2a2a35", borderRadius: "12px", padding: "16px 18px", display: "flex", alignItems: "center", gap: 14 }}>
                 <div style={{ width: 44, height: 44, borderRadius: 10, background: "#c41e3a30", border: "1px solid #c41e3a60", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>{c.emoji}</div>
@@ -250,7 +246,7 @@ export default function Home() {
               </div>
             ))}
           </div>
-        </>
+        </div>
       )}
 
       {tab === "leases" && (
@@ -331,7 +327,7 @@ export default function Home() {
             </select>
           </div>
 
-          <div style={{ fontSize: 11, color: "#666", marginBottom: 16 }}>EXPENSES BY PROPERTY & CATEGORY - {selectedYear}</div>
+          <div style={{ fontSize: 11, color: "#666", marginBottom: 16 }}>EXPENSES BY PROPERTY &amp; CATEGORY - {selectedYear}</div>
           
           {Object.keys(summaryData).length === 0 ? (
             <div style={{ textAlign: "center", color: "#555", fontSize: 12, padding: "40px 0" }}>No expenses for {selectedYear}</div>
@@ -395,4 +391,90 @@ export default function Home() {
             <div style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: 18, marginBottom: 22, color: "#fff" }}>{modal === "add" ? "Add Contact" : "Edit Contact"}</div>
             <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 22 }}>
               <div>
-                <div style={{ fontSize: 11, color: "#666", marginBottom: 6 }}>NAME
+                <div style={{ fontSize: 11, color: "#666", marginBottom: 6 }}>NAME</div>
+                <input placeholder="Contact name" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} style={{ background: "#1e1e28", border: "1px solid #2f2f3f", borderRadius: "8px", color: "#e8e4dc", padding: "10px 14px", width: "100%", fontFamily: "inherit", fontSize: "13px" }} />
+              </div>
+              <div>
+                <div style={{ fontSize: 11, color: "#666", marginBottom: 6 }}>PHONE</div>
+                <input placeholder="(555) 123-4567" value={form.phone} onChange={e => setForm(f => ({ ...f, phone: formatPhone(e.target.value) }))} style={{ background: "#1e1e28", border: "1px solid #2f2f3f", borderRadius: "8px", color: "#e8e4dc", padding: "10px 14px", width: "100%", fontFamily: "inherit", fontSize: "13px" }} />
+              </div>
+              <div>
+                <div style={{ fontSize: 11, color: "#666", marginBottom: 6 }}>SPECIALTY</div>
+                <select value={form.specialty} onChange={e => setForm(f => ({ ...f, specialty: e.target.value }))} style={{ background: "#1e1e28", border: "1px solid #2f2f3f", borderRadius: "8px", color: "#e8e4dc", padding: "10px 14px", width: "100%", fontFamily: "inherit", fontSize: "13px" }}>
+                  {SPECIALTIES.map(s => <option key={s}>{s}</option>)}
+                </select>
+              </div>
+            </div>
+            <div style={{ display: "flex", gap: 10 }}>
+              {modal === "edit" && <button onClick={() => deleteContact(activeContact.id)} style={{ background: "#2a1a1a", border: "1px solid #5a2a2a", color: "#c05050", padding: "11px 16px", borderRadius: "8px", cursor: "pointer", fontFamily: "inherit" }}>Delete</button>}
+              <button onClick={() => setModal(null)} style={{ flex: 1, background: "#1e1e28", border: "1px solid #2f2f3f", color: "#888", padding: "11px", borderRadius: "8px", cursor: "pointer", fontFamily: "inherit" }}>Cancel</button>
+              <button onClick={saveContact} style={{ flex: 2, background: "#c41e3a", color: "#fff", padding: "11px", border: "none", borderRadius: "8px", cursor: "pointer", fontFamily: "inherit" }}>{modal === "add" ? "ADD" : "SAVE"}</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {modal === "expense" && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.72)", display: "flex", alignItems: "center", justifyContent: "center", padding: "20px", zIndex: 100 }} onClick={() => setModal(null)}>
+          <div style={{ background: "#16161d", border: "1px solid #2f2f3f", borderRadius: "16px", padding: "28px", maxWidth: "420px", width: "100%" }} onClick={e => e.stopPropagation()}>
+            <div style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: 18, marginBottom: 22, color: "#fff" }}>{editingExpense ? "Edit Expense" : "Add Expense"}</div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 22 }}>
+              <div>
+                <div style={{ fontSize: 11, color: "#666", marginBottom: 6 }}>PROPERTY</div>
+                <select value={expenseForm.property} onChange={e => setExpenseForm(f => ({ ...f, property: e.target.value }))} style={{ background: "#1e1e28", border: "1px solid #2f2f3f", borderRadius: "8px", color: "#e8e4dc", padding: "10px 14px", width: "100%", fontFamily: "inherit", fontSize: "13px" }}>
+                  {propertiesWithLeases.map(p => <option key={p}>{p}</option>)}
+                </select>
+              </div>
+              <div>
+                <div style={{ fontSize: 11, color: "#666", marginBottom: 6 }}>CATEGORY</div>
+                <select value={expenseForm.category} onChange={e => setExpenseForm(f => ({ ...f, category: e.target.value }))} style={{ background: "#1e1e28", border: "1px solid #2f2f3f", borderRadius: "8px", color: "#e8e4dc", padding: "10px 14px", width: "100%", fontFamily: "inherit", fontSize: "13px" }}>
+                  {EXPENSE_CATEGORIES.map(c => <option key={c}>{c}</option>)}
+                </select>
+              </div>
+              <div>
+                <div style={{ fontSize: 11, color: "#666", marginBottom: 6 }}>AMOUNT</div>
+                <input type="number" placeholder="0.00" value={expenseForm.amount} onChange={e => setExpenseForm(f => ({ ...f, amount: e.target.value }))} style={{ background: "#1e1e28", border: "1px solid #2f2f3f", borderRadius: "8px", color: "#e8e4dc", padding: "10px 14px", width: "100%", fontFamily: "inherit", fontSize: "13px" }} />
+              </div>
+              <div>
+                <div style={{ fontSize: 11, color: "#666", marginBottom: 6 }}>DATE</div>
+                <input type="date" value={expenseForm.date} onChange={e => setExpenseForm(f => ({ ...f, date: e.target.value }))} style={{ background: "#1e1e28", border: "1px solid #2f2f3f", borderRadius: "8px", color: "#e8e4dc", padding: "10px 14px", width: "100%", fontFamily: "inherit", fontSize: "13px" }} />
+              </div>
+              <div>
+                <div style={{ fontSize: 11, color: "#666", marginBottom: 6 }}>DESCRIPTION (optional)</div>
+                <input placeholder="e.g. Roof repair" value={expenseForm.description} onChange={e => setExpenseForm(f => ({ ...f, description: e.target.value }))} style={{ background: "#1e1e28", border: "1px solid #2f2f3f", borderRadius: "8px", color: "#e8e4dc", padding: "10px 14px", width: "100%", fontFamily: "inherit", fontSize: "13px" }} />
+              </div>
+            </div>
+            <div style={{ display: "flex", gap: 10 }}>
+              <button onClick={() => setModal(null)} style={{ flex: 1, background: "#1e1e28", border: "1px solid #2f2f3f", color: "#888", padding: "11px", borderRadius: "8px", cursor: "pointer", fontFamily: "inherit" }}>Cancel</button>
+              <button onClick={saveExpense} style={{ flex: 2, background: "#c41e3a", color: "#fff", padding: "11px", border: "none", borderRadius: "8px", cursor: "pointer", fontFamily: "inherit" }}>{editingExpense ? "SAVE" : "ADD"}</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {editingLease && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.72)", display: "flex", alignItems: "center", justifyContent: "center", padding: "20px", zIndex: 100 }} onClick={() => setEditingLease(null)}>
+          <div style={{ background: "#16161d", border: "1px solid #2f2f3f", borderRadius: "16px", padding: "28px", maxWidth: "420px", width: "100%" }} onClick={e => e.stopPropagation()}>
+            <div style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: 18, marginBottom: 22, color: "#fff" }}>Edit Lease - {editingLease.property}</div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 22 }}>
+              <div>
+                <div style={{ fontSize: 11, color: "#666", marginBottom: 6 }}>START DATE</div>
+                <input type="date" value={editingLease.startDate} onChange={e => setEditingLease({ ...editingLease, startDate: e.target.value })} style={{ background: "#1e1e28", border: "1px solid #2f2f3f", borderRadius: "8px", color: "#e8e4dc", padding: "10px 14px", width: "100%", fontFamily: "inherit", fontSize: "13px" }} />
+              </div>
+              <div>
+                <div style={{ fontSize: 11, color: "#666", marginBottom: 6 }}>END DATE</div>
+                <input type="date" value={editingLease.endDate} onChange={e => setEditingLease({ ...editingLease, endDate: e.target.value })} style={{ background: "#1e1e28", border: "1px solid #2f2f3f", borderRadius: "8px", color: "#e8e4dc", padding: "10px 14px", width: "100%", fontFamily: "inherit", fontSize: "13px" }} />
+              </div>
+            </div>
+            <div style={{ display: "flex", gap: 10 }}>
+              <button onClick={() => setEditingLease(null)} style={{ flex: 1, background: "#1e1e28", border: "1px solid #2f2f3f", color: "#888", padding: "11px", borderRadius: "8px", cursor: "pointer", fontFamily: "inherit" }}>Cancel</button>
+              <button onClick={saveLease} style={{ flex: 2, background: "#c41e3a", color: "#fff", padding: "11px", border: "none", borderRadius: "8px", cursor: "pointer", fontFamily: "inherit" }}>SAVE</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {toast && <div style={{ position: "fixed", bottom: 28, left: "50%", transform: "translateX(-50%)", background: "#2a2a3a", border: "1px solid #3a3a50", borderRadius: "10px", padding: "11px 22px", fontSize: "13px", zIndex: 999 }}>{toast}</div>}
+    </div>
+  );
+}
