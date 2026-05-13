@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 
+const APP_PASSWORD = "810hunter";
+
 const initialContacts = [
   { id: 1, name: "Alvarez", phone: "2244868135", specialty: "Plumbing", emoji: "🔧", color: "#c41e3a" },
   { id: 10, name: "Georges", phone: "2242686189", specialty: "Plumbing", emoji: "🔧", color: "#c41e3a" },
@@ -47,6 +49,10 @@ function getDaysUntil(dateStr) {
 }
 
 export default function Home() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [passwordInput, setPasswordInput] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  
   const [tab, setTab] = useState("contacts");
   const [contacts, setContacts] = useState(initialContacts);
   const [leases, setLeases] = useState([
@@ -98,6 +104,23 @@ export default function Home() {
     acc[e.property][e.category] += e.amount;
     return acc;
   }, {});
+
+  function handleLogin() {
+    if (passwordInput === APP_PASSWORD) {
+      setIsLoggedIn(true);
+      setPasswordInput("");
+      setPasswordError("");
+    } else {
+      setPasswordError("Incorrect password");
+      setPasswordInput("");
+    }
+  }
+
+  function handleLogout() {
+    setIsLoggedIn(false);
+    setPasswordInput("");
+    setPasswordError("");
+  }
 
   function showToast(msg) {
     setToast(msg);
@@ -196,13 +219,52 @@ export default function Home() {
     window.open(`tel:${contact.phone}`);
   }
 
+  // PASSWORD SCREEN
+  if (!isLoggedIn) {
+    return (
+      <div style={{ minHeight: "100vh", background: "#0f0f13", fontFamily: "'DM Mono', 'Courier New', monospace", color: "#e8e4dc", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@700;800&display=swap');`}</style>
+        <div style={{ background: "#16161d", border: "1px solid #2f2f3f", borderRadius: "16px", padding: "40px", maxWidth: "320px", width: "100%" }}>
+          <div style={{ fontFamily: "'Syne', sans-serif", fontSize: 24, fontWeight: 800, color: "#fff", marginBottom: 8, textAlign: "center" }}>
+            THAKKAR<span style={{ color: "#c41e3a" }}> PROPERTIES</span>
+          </div>
+          <div style={{ fontSize: 12, color: "#666", marginBottom: 32, textAlign: "center" }}>Enter password to continue</div>
+          
+          <input 
+            type="password" 
+            placeholder="Password" 
+            value={passwordInput} 
+            onChange={e => setPasswordInput(e.target.value)}
+            onKeyPress={e => e.key === "Enter" && handleLogin()}
+            style={{ background: "#1e1e28", border: "1px solid #2f2f3f", borderRadius: "8px", color: "#e8e4dc", padding: "12px 14px", width: "100%", fontFamily: "inherit", fontSize: "13px", marginBottom: 10 }} 
+          />
+          
+          {passwordError && (
+            <div style={{ fontSize: 12, color: "#c05050", marginBottom: 16, textAlign: "center" }}>❌ {passwordError}</div>
+          )}
+          
+          <button 
+            onClick={handleLogin} 
+            style={{ background: "#c41e3a", color: "#fff", padding: "12px", border: "none", borderRadius: "8px", cursor: "pointer", fontFamily: "inherit", width: "100%", fontWeight: 700, fontSize: "13px" }}
+          >
+            UNLOCK
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // MAIN APP (after login)
   return (
     <div style={{ minHeight: "100vh", background: "#0f0f13", fontFamily: "'DM Mono', 'Courier New', monospace", color: "#e8e4dc" }}>
       <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@700;800&display=swap'); * { box-sizing: border-box; margin: 0; padding: 0; }`}</style>
       
       <div style={{ padding: "28px 24px 0", maxWidth: 680, margin: "0 auto" }}>
-        <div style={{ fontFamily: "'Syne', sans-serif", fontSize: 26, fontWeight: 800, color: "#fff", marginBottom: 24 }}>
-          THAKKAR<span style={{ color: "#c41e3a" }}> PROPERTIES</span>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
+          <div style={{ fontFamily: "'Syne', sans-serif", fontSize: 26, fontWeight: 800, color: "#fff" }}>
+            THAKKAR<span style={{ color: "#c41e3a" }}> PROPERTIES</span>
+          </div>
+          <button onClick={handleLogout} style={{ background: "#1e1e28", border: "1px solid #2f2f3f", color: "#c41e3a", padding: "6px 12px", fontSize: 11, borderRadius: "6px", cursor: "pointer", fontFamily: "inherit" }}>🔒 LOGOUT</button>
         </div>
         
         <div style={{ display: "flex", gap: 0, marginBottom: 24, borderBottom: "1px solid #2a2a35", overflowX: "auto" }}>
@@ -478,3 +540,4 @@ export default function Home() {
     </div>
   );
 }
+  
