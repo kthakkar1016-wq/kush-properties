@@ -1,24 +1,19 @@
 'use client';
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { createClient } from "@supabase/supabase-js";
+
+// Initialize Supabase
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+let supabase = null;
+
+if (supabaseUrl && supabaseKey) {
+  supabase = createClient(supabaseUrl, supabaseKey);
+}
 
 const APP_PASSWORD = "810hunter";
-
-const initialContacts = [
-  { id: 1, name: "Alvarez", phone: "2244868135", specialty: "Plumbing", emoji: "🔧", color: "#c41e3a" },
-  { id: 10, name: "Georges", phone: "2242686189", specialty: "Plumbing", emoji: "🔧", color: "#c41e3a" },
-  { id: 2, name: "Andy", phone: "6302476709", specialty: "Electrical", emoji: "⚡", color: "#c41e3a" },
-  { id: 3, name: "Richard", phone: "3146090219", specialty: "Furnace/AC", emoji: "❄️", color: "#c41e3a" },
-  { id: 12, name: "Yogi AC", phone: "6304074058", specialty: "Furnace/AC", emoji: "❄️", color: "#c41e3a" },
-  { id: 4, name: "Joel", phone: "2245440134", specialty: "General", emoji: "🔨", color: "#c41e3a" },
-  { id: 5, name: "Jesus", phone: "2245420618", specialty: "Landscaping", emoji: "🌱", color: "#c41e3a" },
-  { id: 6, name: "Jesus", phone: "2245420618", specialty: "Snow Removal", emoji: "❄️", color: "#c41e3a" },
-  { id: 7, name: "Bhavik", phone: "6309231897", specialty: "Roofing", emoji: "🏠", color: "#c41e3a" },
-  { id: 8, name: "Jesus (Roof Repair)", phone: "8477547151", specialty: "Roofing", emoji: "🏠", color: "#c41e3a" },
-  { id: 13, name: "2nd Roof Opinion", phone: "6304331409", specialty: "Roofing", emoji: "🏠", color: "#c41e3a" },
-  { id: 9, name: "Garage man", phone: "8476209249", specialty: "Garage", emoji: "🚪", color: "#c41e3a" },
-  { id: 11, name: "Northwest Duct", phone: "6308085901", specialty: "Duct Cleaning", emoji: "💨", color: "#c41e3a" },
-];
 
 const PROPERTIES = ["1462 Bear Flag", "3506 Barkley", "1150 Hilldale", "333 Four Winds Way", "1342 Deerfield", "6267 Kit Carson", "6364 Fremont"];
 
@@ -52,26 +47,13 @@ export default function Home() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [passwordInput, setPasswordInput] = useState("");
   const [passwordError, setPasswordError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [connectionError, setConnectionError] = useState("");
   
   const [tab, setTab] = useState("contacts");
-  const [contacts, setContacts] = useState(initialContacts);
-  const [leases, setLeases] = useState([
-    { property: "1462 Bear Flag", startDate: "2024-01-01", endDate: "2026-12-31" },
-    { property: "3506 Barkley", startDate: "2024-06-01", endDate: "2026-05-31" },
-    { property: "1150 Hilldale", startDate: "", endDate: "" },
-    { property: "333 Four Winds Way", startDate: "2024-09-01", endDate: "2025-08-31" },
-    { property: "1342 Deerfield", startDate: "", endDate: "" },
-    { property: "6267 Kit Carson", startDate: "2024-11-01", endDate: "2025-10-31" },
-    { property: "6364 Fremont", startDate: "2023-07-01", endDate: "2025-06-30" },
-  ]);
-  const [expenses, setExpenses] = useState([
-    { id: 1, property: "1462 Bear Flag", category: "Repairs", amount: 250, date: "2026-05-01", description: "Roof repair" },
-    { id: 2, property: "3506 Barkley", category: "Cleaning", amount: 150, date: "2026-05-10", description: "Professional cleaning" },
-    { id: 3, property: "333 Four Winds Way", category: "Legal fees", amount: 500, date: "2026-04-15", description: "Tenant dispute" },
-    { id: 4, property: "6267 Kit Carson", category: "Professional services", amount: 300, date: "2026-05-05", description: "Property inspection" },
-    { id: 5, property: "1462 Bear Flag", category: "Repairs", amount: 125, date: "2026-05-08", description: "Plumbing fix" },
-    { id: 6, property: "6364 Fremont", category: "Cleaning", amount: 200, date: "2026-04-20", description: "Deep clean" },
-  ]);
+  const [contacts, setContacts] = useState([]);
+  const [leases, setLeases] = useState([]);
+  const [expenses, setExpenses] = useState([]);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("All");
   const [selectedProperty, setSelectedProperty] = useState("All Properties");
@@ -85,6 +67,45 @@ export default function Home() {
   const [customMsg, setCustomMsg] = useState("");
   const [selectedQuick, setSelectedQuick] = useState(null);
   const [toast, setToast] = useState(null);
+
+  useEffect(() => {
+    if (isLoggedIn && supabase) {
+      loadData();
+    }
+  }, [isLoggedIn]);
+
+  async function loadData() {
+    if (!supabase) {
+      setConnectionError("Supabase not configured");
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      setConnectionError("");
+      
+      const [contactsRes, leasesRes, expensesRes] = await Promise.all([
+        supabase.from("contacts").select("*"),
+        supabase.from("leases").select("*"),
+        supabase.from("expenses").select("*"),
+      ]);
+
+      if (contactsRes.error) throw contactsRes.error;
+      if (leasesRes.error) throw leasesRes.error;
+      if (expensesRes.error) throw expensesRes.error;
+
+      if (contactsRes.data) setContacts(contactsRes.data);
+      if (leasesRes.data) setLeases(leasesRes.data.map(l => ({ property: l.property, startDate: l.start_date, endDate: l.end_date })));
+      if (expensesRes.data) setExpenses(expensesRes.data.map(e => ({ id: e.id, property: e.property, category: e.category, amount: e.amount, date: e.date, description: e.description })));
+      
+      setIsLoading(false);
+    } catch (error) {
+      console.error("Error loading data:", error);
+      setConnectionError(error.message || "Error connecting to database");
+      setIsLoading(false);
+    }
+  }
 
   const specialties = ["All", ...SPECIALTIES];
   const propertiesWithLeases = leases.filter(l => l.startDate && l.endDate).map(l => l.property);
@@ -145,51 +166,120 @@ export default function Home() {
     setModal("add");
   }
 
-  function saveContact() {
+  async function saveContact() {
     const phone = rawPhone(form.phone);
     if (!form.name.trim() || phone.length < 10) return;
-    if (modal === "add") {
-      setContacts(prev => [...prev, { id: Date.now(), name: form.name.trim(), phone, specialty: form.specialty, emoji: "🔨", color: "#c41e3a" }]);
-      showToast("Contact added!");
-    } else {
-      setContacts(prev => prev.map(c => c.id === activeContact.id ? { ...c, name: form.name.trim(), phone, specialty: form.specialty, color: "#c41e3a" } : c));
-      showToast("Contact updated!");
+    if (!supabase) {
+      showToast("Database not connected");
+      return;
     }
-    setModal(null);
-  }
-
-  function deleteContact(id) {
-    setContacts(prev => prev.filter(c => c.id !== id));
-    setModal(null);
-    showToast("Contact removed.");
-  }
-
-  function saveLease() {
-    if (editingLease && editingLease.startDate && editingLease.endDate) {
-      setLeases(prev => prev.map(l => l.property === editingLease.property ? editingLease : l));
-      setEditingLease(null);
-      showToast("Lease updated!");
-    }
-  }
-
-  function saveExpense() {
-    if (expenseForm.property && expenseForm.category && expenseForm.amount && expenseForm.date) {
-      if (editingExpense) {
-        setExpenses(prev => prev.map(e => e.id === editingExpense.id ? { ...editingExpense, ...expenseForm } : e));
-        showToast("Expense updated!");
+    
+    try {
+      if (modal === "add") {
+        const { data, error } = await supabase.from("contacts").insert([
+          { name: form.name.trim(), phone, specialty: form.specialty }
+        ]).select();
+        
+        if (error) throw error;
+        setContacts(prev => [...prev, ...data]);
+        showToast("Contact added!");
       } else {
-        setExpenses(prev => [...prev, { id: Date.now(), ...expenseForm, amount: parseFloat(expenseForm.amount) }]);
-        showToast("Expense added!");
+        const { error } = await supabase.from("contacts").update({ name: form.name.trim(), phone, specialty: form.specialty }).eq("id", activeContact.id);
+        if (error) throw error;
+        setContacts(prev => prev.map(c => c.id === activeContact.id ? { ...c, name: form.name.trim(), phone, specialty: form.specialty } : c));
+        showToast("Contact updated!");
       }
-      setEditingExpense(null);
-      setExpenseForm({ property: "", category: "Repairs", amount: "", date: "", description: "" });
       setModal(null);
+    } catch (error) {
+      console.error("Error saving contact:", error);
+      showToast("Error saving contact");
     }
   }
 
-  function deleteExpense(id) {
-    setExpenses(prev => prev.filter(e => e.id !== id));
-    showToast("Expense deleted.");
+  async function deleteContact(id) {
+    if (!supabase) return;
+    try {
+      const { error } = await supabase.from("contacts").delete().eq("id", id);
+      if (error) throw error;
+      setContacts(prev => prev.filter(c => c.id !== id));
+      setModal(null);
+      showToast("Contact removed.");
+    } catch (error) {
+      console.error("Error deleting contact:", error);
+    }
+  }
+
+  async function saveLease() {
+    if (editingLease && editingLease.startDate && editingLease.endDate) {
+      if (!supabase) {
+        showToast("Database not connected");
+        return;
+      }
+      try {
+        const { error } = await supabase.from("leases").update({ start_date: editingLease.startDate, end_date: editingLease.endDate }).eq("property", editingLease.property);
+        if (error) throw error;
+        setLeases(prev => prev.map(l => l.property === editingLease.property ? editingLease : l));
+        setEditingLease(null);
+        showToast("Lease updated!");
+      } catch (error) {
+        console.error("Error saving lease:", error);
+      }
+    }
+  }
+
+  async function saveExpense() {
+    if (expenseForm.property && expenseForm.category && expenseForm.amount && expenseForm.date) {
+      if (!supabase) {
+        showToast("Database not connected");
+        return;
+      }
+      try {
+        if (editingExpense) {
+          const { error } = await supabase.from("expenses").update({ 
+            property: expenseForm.property, 
+            category: expenseForm.category, 
+            amount: parseFloat(expenseForm.amount), 
+            date: expenseForm.date, 
+            description: expenseForm.description 
+          }).eq("id", editingExpense.id);
+          if (error) throw error;
+          setExpenses(prev => prev.map(e => e.id === editingExpense.id ? { ...expenseForm, id: e.id } : e));
+          showToast("Expense updated!");
+        } else {
+          const { data, error } = await supabase.from("expenses").insert([
+            { 
+              property: expenseForm.property, 
+              category: expenseForm.category, 
+              amount: parseFloat(expenseForm.amount), 
+              date: expenseForm.date, 
+              description: expenseForm.description 
+            }
+          ]).select();
+          
+          if (error) throw error;
+          setExpenses(prev => [...prev, ...data.map(e => ({ id: e.id, property: e.property, category: e.category, amount: e.amount, date: e.date, description: e.description }))]);
+          showToast("Expense added!");
+        }
+        setEditingExpense(null);
+        setExpenseForm({ property: "", category: "Repairs", amount: "", date: "", description: "" });
+        setModal(null);
+      } catch (error) {
+        console.error("Error saving expense:", error);
+        showToast("Error: " + error.message);
+      }
+    }
+  }
+
+  async function deleteExpense(id) {
+    if (!supabase) return;
+    try {
+      const { error } = await supabase.from("expenses").delete().eq("id", id);
+      if (error) throw error;
+      setExpenses(prev => prev.filter(e => e.id !== id));
+      showToast("Expense deleted.");
+    } catch (error) {
+      console.error("Error deleting expense:", error);
+    }
   }
 
   function openAddExpense() {
@@ -254,7 +344,18 @@ export default function Home() {
     );
   }
 
-  // MAIN APP (after login)
+  if (isLoading) {
+    return (
+      <div style={{ minHeight: "100vh", background: "#0f0f13", fontFamily: "'DM Mono', 'Courier New', monospace", color: "#e8e4dc", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ textAlign: "center" }}>
+          <div style={{ fontSize: 14, color: "#666", marginBottom: 16 }}>Loading...</div>
+          {connectionError && <div style={{ fontSize: 12, color: "#c05050" }}>⚠️ {connectionError}</div>}
+        </div>
+      </div>
+    );
+  }
+
+  // MAIN APP
   return (
     <div style={{ minHeight: "100vh", background: "#0f0f13", fontFamily: "'DM Mono', 'Courier New', monospace", color: "#e8e4dc" }}>
       <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@700;800&display=swap'); * { box-sizing: border-box; margin: 0; padding: 0; }`}</style>
@@ -292,7 +393,7 @@ export default function Home() {
           <div style={{ maxWidth: 680, margin: "0 auto", padding: "0 0 40px", display: "flex", flexDirection: "column", gap: 10 }}>
             {filtered.map(c => (
               <div key={c.id} style={{ background: "#16161d", border: "1px solid #2a2a35", borderRadius: "12px", padding: "16px 18px", display: "flex", alignItems: "center", gap: 14 }}>
-                <div style={{ width: 44, height: 44, borderRadius: 10, background: "#c41e3a30", border: "1px solid #c41e3a60", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>{c.emoji}</div>
+                <div style={{ width: 44, height: 44, borderRadius: 10, background: "#c41e3a30", border: "1px solid #c41e3a60", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>🔨</div>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontFamily: "'Syne', sans-serif", fontWeight: 700, fontSize: 15, color: "#fff" }}>{c.name}</div>
                   <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 4 }}>
@@ -540,4 +641,3 @@ export default function Home() {
     </div>
   );
 }
-  
